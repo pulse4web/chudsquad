@@ -1,47 +1,119 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xhtml="http://www.w3.org/1999/xhtml"
-     width="300"
-     height="100">
+     width="100%"
+     height="100%">
 
-  <foreignObject x="0" y="0" width="300" height="100">
-    <xhtml:div xmlns="http://www.w3.org/1999/xhtml"
-               style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">
+  <foreignObject width="100%" height="100%">
+    <xhtml:html lang="en">
 
-      <xhtml:button onclick="openProject()"
-                    style="padding:12px 24px;font-size:16px;cursor:pointer">
-        Open Project
-      </xhtml:button>
+      <xhtml:head>
+        <xhtml:meta charset="UTF-8"/>
 
-      <xhtml:script>
-        <![CDATA[
-        async function openProject() {
-          const url =
-            "https://raw.githubusercontent.com/pulse4web/chudsquad/refs/heads/main/index.html";
+        <xhtml:script><![CDATA[
+          (function () {
+            const XHTML_NS = "http://www.w3.org/1999/xhtml";
+            const root = document.querySelector("foreignObject").firstElementChild;
 
-          const response = await fetch(url);
-          const html = await response.text();
+            const originalCreateElement =
+              document.createElement.bind(document);
 
-          const tab = window.open("about:blank", "_blank");
+            const originalCreateElementNS =
+              document.createElementNS.bind(document);
 
-          if (!tab) {
-            alert("Please allow pop-ups for this page.");
-            return;
+            Object.defineProperty(document, "head", {
+              get: () => root.querySelector("head"),
+              configurable: true
+            });
+
+            Object.defineProperty(document, "body", {
+              get: () => root.querySelector("body"),
+              configurable: true
+            });
+
+            Object.defineProperty(document, "documentElement", {
+              get: () => root,
+              configurable: true
+            });
+
+            document.createElement = function (tagName, options) {
+              if (typeof tagName === "string") {
+                return originalCreateElementNS(XHTML_NS, tagName, options);
+              }
+              return originalCreateElement(tagName, options);
+            };
+
+            document.createElementNS = function (
+              namespaceURI,
+              qualifiedName,
+              options
+            ) {
+              if (!namespaceURI || namespaceURI === XHTML_NS) {
+                return originalCreateElementNS(
+                  XHTML_NS,
+                  qualifiedName,
+                  options
+                );
+              }
+
+              return originalCreateElementNS(
+                namespaceURI,
+                qualifiedName,
+                options
+              );
+            };
+          })();
+        ]]></xhtml:script>
+
+        <xhtml:style>
+          html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
           }
 
-          const iframe = tab.document.createElement("iframe");
+          #root {
+            width: 100%;
+            height: 100%;
+          }
+        </xhtml:style>
+      </xhtml:head>
 
-          iframe.style.cssText =
-            "position:fixed;inset:0;width:100%;height:100%;border:0";
+      <xhtml:body>
+        <xhtml:div id="root">
+          <xhtml:button onclick="openProject()">
+            Open Project
+          </xhtml:button>
+        </xhtml:div>
 
-          iframe.srcdoc = html;
+        <xhtml:script><![CDATA[
+          async function openProject() {
+            const url =
+              "https://raw.githubusercontent.com/pulse4web/chudsquad/refs/heads/main/index.html";
 
-          tab.document.body.style.margin = "0";
-          tab.document.body.appendChild(iframe);
-        }
-        ]]>
-      </xhtml:script>
+            const response = await fetch(url);
+            const html = await response.text();
 
-    </xhtml:div>
+            const tab = window.open("about:blank", "_blank");
+
+            if (!tab) {
+              alert("Please allow pop-ups for this page.");
+              return;
+            }
+
+            const iframe = tab.document.createElement("iframe");
+
+            iframe.style.cssText =
+              "position:fixed;inset:0;width:100%;height:100%;border:0";
+
+            iframe.srcdoc = html;
+
+            tab.document.body.style.margin = "0";
+            tab.document.body.appendChild(iframe);
+          }
+        ]]></xhtml:script>
+      </xhtml:body>
+
+    </xhtml:html>
   </foreignObject>
-
 </svg>
