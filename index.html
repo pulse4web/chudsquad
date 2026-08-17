@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Liquid Glass Chat</title>
+  <title>Canvas</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
   
-  <!-- Supabase CDN -->
+  <!-- Supabase JS SDK (Communicates via standard HTTPS Port 443) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -304,29 +304,41 @@
   </div>
 
   <script>
+    // Method 1: Using HTTPS API endpoints over Port 443
     const SUPABASE_URL = 'https://bqaqbgiegganphnjjdwa.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_U0zHEC9AWY1hplC1ONcMdQ_YXitfrQy';
     
-    let supabaseClient;
-    
-    // Safety check for CDN script loading
-    if (window.supabase && window.supabase.createClient) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } else {
-      console.error('Supabase library failed to load. Check your network or AdBlocker.');
+    let supabaseClient = null;
+
+    // Initialize Supabase JS Client using standard HTTPS REST / WebSocket transport
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: false
+        }
+      });
     }
-    
+
     let currentUser = '';
     let notificationsAllowed = false;
 
     async function verifyPassword() {
-      if (!supabaseClient) return alert('Database connection failed. Please disable adblockers and refresh.');
+      if (!supabaseClient) {
+        alert('Database connection failed. Please verify that the Supabase CDN script is allowed by your network.');
+        return;
+      }
       
       const pwd = document.getElementById('password-input').value;
-      const { data, error } = await supabaseClient.from('app_config').select('shared_password').eq('id', 1).single();
+      
+      // Makes an HTTPS REST request over Port 443
+      const { data, error } = await supabaseClient
+        .from('app_config')
+        .select('shared_password')
+        .eq('id', 1)
+        .single();
       
       if (error || !data) {
-        alert('Error connecting to database. Make sure the table "app_config" exists.');
+        alert('Unable to reach app_config table. Verify your database setup in Supabase SQL editor.');
         return;
       }
 
@@ -364,6 +376,7 @@
     }
 
     async function loadMessages() {
+      // HTTPS REST query over Port 443
       const { data, error } = await supabaseClient
         .from('messages')
         .select('*')
@@ -404,10 +417,12 @@
       if (!text) return;
 
       input.value = '';
+      // HTTPS POST request over Port 443
       await supabaseClient.from('messages').insert([{ username: currentUser, content: text }]);
     }
 
     function subscribeToMessages() {
+      // Realtime listener over WSS / Port 443
       supabaseClient
         .channel('public:messages')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
