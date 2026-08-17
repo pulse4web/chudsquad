@@ -1,6 +1,34 @@
-<!doctype html>
+<!DOCTYPE html>
+<html>
+<body>
+
+<button onclick="openProject()">Open Project</button>
+
 <script>
-const w = open("about:blank", "_blank");
-w.document.body.innerHTML =
-  '<iframe src="https://cdn.jsdelivr.net/gh/pulse4web/chudsquad@main/index.html" style="position:fixed;inset:0;width:100%;height:100%;border:0"></iframe>';
+async function openProject() {
+  const url = "https://cdn.jsdelivr.net/gh/pulse4web/chudsquad@main/index.html";
+
+  const response = await fetch(url);
+  const html = await response.text();
+
+  const tab = window.open("about:blank", "_blank");
+
+  if (!tab) {
+    alert("Please allow pop-ups for this page.");
+    return;
+  }
+
+  const iframe = tab.document.createElement("iframe");
+
+  iframe.style.cssText =
+    "position:fixed;inset:0;width:100%;height:100%;border:0";
+
+  iframe.srcdoc = html;
+
+  tab.document.body.style.margin = "0";
+  tab.document.body.appendChild(iframe);
+}
 </script>
+
+</body>
+</html>
