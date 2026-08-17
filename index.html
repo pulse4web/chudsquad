@@ -165,6 +165,27 @@
       color: #fff;
     }
 
+    .purge-btn {
+      width: auto;
+      padding: 6px 14px;
+      font-size: 12px;
+      border-radius: 10px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .purge-btn:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: rgba(239, 68, 68, 0.6);
+      color: #ffffff;
+    }
+
+    .purge-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     #chat-screen {
       padding: 0;
       justify-content: space-between;
@@ -182,6 +203,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .chat-messages {
@@ -285,9 +312,12 @@
       <div class="chat-header">
         <div>
           <span style="font-weight:700; font-size:15px; display:block;">Liquid Chat</span>
-          <span style="font-size:11px; color:#10B981;">Firebase Connected</span>
+          <span style="font-size:11px; color:#10B981;">Firebase Connected • Auto-Purge 30m</span>
         </div>
-        <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981;"></div>
+        <div class="chat-header-actions">
+          <button id="btn-purge" class="purge-btn">Purge</button>
+          <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981;"></div>
+        </div>
       </div>
 
       <div id="messages" class="chat-messages"></div>
@@ -300,7 +330,7 @@
 
   </div>
 
-  <!-- Firebase Modular Web SDK v10 -->
+  <!-- Firebase Modular Web SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -308,7 +338,9 @@
       ref, 
       push, 
       set, 
+      remove,
       onChildAdded, 
+      onChildRemoved,
       query, 
       limitToLast, 
       orderByChild, 
@@ -329,37 +361,73 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    const THIRTY_MINUTES_MS = 30 * 60 * 1000;
+    const FIVE_MINUTES_MS = 5 * 60 * 1000;
     let currentUser = '';
     let notificationsAllowed = false;
+    const seenMessageKeys = new Set();
+    let purgeCooldownTimer = null;
+    let purgeCooldownEnd = 0;
 
     async function verifyRoomPassword(inputPassword) {
       try {
-        const snapshot = await get(ref(db, 'app_config/shared_password'));
-        return snapshot.val() === inputPassword;
+        let snapshot = await get(ref(db, 'app_config/shared_password'));
+        if (!snapshot.exists()) return false;
+
+        return String(snapshot.val()).trim() === String(inputPassword).trim();
       } catch (e) {
         console.error("Database connection error:", e);
         return false;
       }
     }
 
-    function sendMessage(username, text) {
-      const msgRef = push(ref(db, 'messages'));
-      return set(msgRef, {
-        username,
-        content: text,
-        created_at: serverTimestamp()
-      });
-    }
-
-    function listenForMessages(callback) {
+    function listenForMessages(onAdd, onRemove) {
       const messagesQuery = query(
         ref(db, 'messages'), 
         orderByChild('created_at'), 
-        limitToLast(50)
+        limitToLast(100)
       );
-      return onChildAdded(messagesQuery, (snapshot) => {
-        callback(snapshot.val());
+
+      onChildAdded(messagesQuery, (snapshot) => {
+        const key = snapshot.key;
+        const data = snapshot.val();
+
+        if (seenMessageKeys.has(key)) return;
+
+        const age = Date.now() - (data.created_at || Date.now());
+        if (data.created_at && age > THIRTY_MINUTES_MS) {
+          remove(ref(db, `messages/${key}`));
+          return;
+        }
+
+        seenMessageKeys.add(key);
+        onAdd(key, data);
       });
+
+      onChildRemoved(ref(db, 'messages'), (snapshot) => {
+        const key = snapshot.key;
+        seenMessageKeys.delete(key);
+        onRemove(key);
+      });
+    }
+
+    function start30MinPurgeLoop() {
+      setInterval(() => {
+        const now = Date.now();
+        const msgElements = document.querySelectorAll('.message[data-time]');
+        
+        msgElements.forEach(el => {
+          const timestamp = parseInt(el.getAttribute('data-time'), 10);
+          const key = el.getAttribute('data-key');
+
+          if (timestamp && (now - timestamp > THIRTY_MINUTES_MS)) {
+            if (key) {
+              remove(ref(db, `messages/${key}`));
+            }
+            el.remove();
+          }
+        });
+      }, 10000);
     }
 
     function transitionScreen(fromId, toId) {
@@ -367,12 +435,18 @@
       document.getElementById(toId).classList.remove('hidden');
     }
 
-    function renderMessage(msg, isNew = true) {
+    function renderMessage(key, msg, isNew = true) {
       const container = document.getElementById('messages');
+      if (document.querySelector(`.message[data-key="${key}"]`)) return;
+
       const div = document.createElement('div');
       const isSelf = msg.username === currentUser;
+      const createdAt = msg.created_at || Date.now();
       
       div.className = `message ${isSelf ? 'self' : ''}`;
+      div.setAttribute('data-key', key);
+      div.setAttribute('data-time', createdAt);
+
       div.innerHTML = `
         <div class="author">${escapeHtml(msg.username)}</div>
         <div class="text">${escapeHtml(msg.content)}</div>
@@ -388,6 +462,11 @@
       }
     }
 
+    function removeMessageFromDOM(key) {
+      const el = document.querySelector(`.message[data-key="${key}"]`);
+      if (el) el.remove();
+    }
+
     function scrollToBottom() {
       const container = document.getElementById('messages');
       container.scrollTop = container.scrollHeight;
@@ -395,6 +474,57 @@
 
     function escapeHtml(str) {
       return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    async function sendMessage(username, content) {
+      const newMsgRef = push(ref(db, 'messages'));
+      await set(newMsgRef, {
+        username: username,
+        content: content,
+        created_at: Date.now()
+      });
+    }
+
+    // Manual Purge Logic
+    const purgeBtn = document.getElementById('btn-purge');
+    purgeBtn.addEventListener('click', async () => {
+      const now = Date.now();
+      if (now < purgeCooldownEnd) return;
+
+      if (!confirm("Are you sure you want to delete all messages for everyone?")) return;
+
+      try {
+        await remove(ref(db, 'messages'));
+        document.getElementById('messages').innerHTML = '';
+        seenMessageKeys.clear();
+
+        purgeCooldownEnd = Date.now() + FIVE_MINUTES_MS;
+        startPurgeCooldown();
+      } catch (e) {
+        console.error("Purge failed:", e);
+        alert("Failed to purge messages.");
+      }
+    });
+
+    function startPurgeCooldown() {
+      purgeBtn.disabled = true;
+
+      if (purgeCooldownTimer) clearInterval(purgeCooldownTimer);
+
+      purgeCooldownTimer = setInterval(() => {
+        const remainingMs = purgeCooldownEnd - Date.now();
+        const remainingSec = Math.ceil(remainingMs / 1000);
+
+        if (remainingSec <= 0) {
+          clearInterval(purgeCooldownTimer);
+          purgeBtn.disabled = false;
+          purgeBtn.innerText = "Purge";
+        } else {
+          const mins = Math.floor(remainingSec / 60);
+          const secs = remainingSec % 60;
+          purgeBtn.innerText = `Purge (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+        }
+      }, 1000);
     }
 
     document.getElementById('btn-password').addEventListener('click', async () => {
@@ -441,9 +571,11 @@
 
     function enterChat() {
       transitionScreen('step-notifications', 'chat-screen');
-      listenForMessages((msg) => {
-        renderMessage(msg, true);
-      });
+      listenForMessages(
+        (key, msg) => renderMessage(key, msg, true),
+        (key) => removeMessageFromDOM(key)
+      );
+      start30MinPurgeLoop();
     }
   </script>
 </body>
