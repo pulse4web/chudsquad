@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xhtml="http://www.w3.org/1999/xhtml"
+     width="300"
+     height="100">
+
+  <foreignObject x="0" y="0" width="300" height="100">
+    <xhtml:div xmlns="http://www.w3.org/1999/xhtml"
+               style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">
+
+      <xhtml:button onclick="openProject()"
+                    style="padding:12px 24px;font-size:16px;cursor:pointer">
+        Open Project
+      </xhtml:button>
+
+      <xhtml:script>
+        <![CDATA[
+        async function openProject() {
+          const url =
+            "https://raw.githubusercontent.com/pulse4web/chudsquad/refs/heads/main/index.html";
+
+          const response = await fetch(url);
+          const html = await response.text();
+
+          const tab = window.open("about:blank", "_blank");
+
+          if (!tab) {
+            alert("Please allow pop-ups for this page.");
+            return;
+          }
+
+          const iframe = tab.document.createElement("iframe");
+
+          iframe.style.cssText =
+            "position:fixed;inset:0;width:100%;height:100%;border:0";
+
+          iframe.srcdoc = html;
+
+          tab.document.body.style.margin = "0";
+          tab.document.body.appendChild(iframe);
+        }
+        ]]>
+      </xhtml:script>
+
+    </xhtml:div>
+  </foreignObject>
+
+</svg>
