@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Canvas</title>
+  <title>Liquid Glass Chat</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-  
-  <!-- Supabase JS SDK (Communicates via standard HTTPS Port 443) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -53,7 +50,7 @@
 
     .container {
       width: 100%;
-      max-width: 440px;
+      max-width: 9999px;
       height: 100vh;
       background: rgba(18, 18, 18, 0.85);
       backdrop-filter: blur(25px) saturate(180%);
@@ -259,7 +256,7 @@
         <h2>Enter Room Key</h2>
         <p>Enter the shared key to unlock this temporary messaging instance.</p>
         <input type="password" id="password-input" placeholder="Shared key..." />
-        <button onclick="verifyPassword()">Unlock Access</button>
+        <button id="btn-password">Unlock Access</button>
       </div>
     </div>
 
@@ -269,7 +266,7 @@
         <h2>Display Name</h2>
         <p>Choose a nickname that will be visible to everyone in the room.</p>
         <input type="text" id="username-input" placeholder="Your name..." maxlength="20" />
-        <button onclick="goToNotifications()">Continue</button>
+        <button id="btn-username">Continue</button>
       </div>
     </div>
 
@@ -278,8 +275,8 @@
       <div class="glass-panel" style="display:flex; flex-direction:column; gap:16px;">
         <h2>Notifications</h2>
         <p>Stay updated when new messages arrive while this page is in the background.</p>
-        <button onclick="enableNotifications(true)">Enable Notifications</button>
-        <button class="secondary-btn" onclick="enableNotifications(false)">Skip for Now</button>
+        <button id="btn-notif-enable">Enable Notifications</button>
+        <button id="btn-notif-skip" class="secondary-btn">Skip for Now</button>
       </div>
     </div>
 
@@ -288,7 +285,7 @@
       <div class="chat-header">
         <div>
           <span style="font-weight:700; font-size:15px; display:block;">Liquid Chat</span>
-          <span style="font-size:11px; color:#A1A1AA;">Messages purge every 30m</span>
+          <span style="font-size:11px; color:#10B981;">Firebase Connected</span>
         </div>
         <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981;"></div>
       </div>
@@ -296,98 +293,78 @@
       <div id="messages" class="chat-messages"></div>
 
       <div class="chat-input-area">
-        <input type="text" id="message-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()" />
-        <button style="width: auto; padding: 0 20px;" onclick="sendMessage()">Send</button>
+        <input type="text" id="message-input" placeholder="Type a message..." />
+        <button id="btn-send" style="width: auto; padding: 0 20px;">Send</button>
       </div>
     </div>
 
   </div>
 
-  <script>
-    // Method 1: Using HTTPS API endpoints over Port 443
-    const SUPABASE_URL = 'https://bqaqbgiegganphnjjdwa.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_U0zHEC9AWY1hplC1ONcMdQ_YXitfrQy';
-    
-    let supabaseClient = null;
+  <!-- Firebase Modular Web SDK v10 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getDatabase, 
+      ref, 
+      push, 
+      set, 
+      onChildAdded, 
+      query, 
+      limitToLast, 
+      orderByChild, 
+      get, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Initialize Supabase JS Client using standard HTTPS REST / WebSocket transport
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-          persistSession: false
-        }
-      });
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzUQLTIY0wBxTU8E6nnvl3249p1s1SyOU",
+      authDomain: "chudsquad-901b3.firebaseapp.com",
+      databaseURL: "https://chudsquad-901b3-default-rtdb.firebaseio.com",
+      projectId: "chudsquad-901b3",
+      storageBucket: "chudsquad-901b3.firebasestorage.app",
+      messagingSenderId: "64999067428",
+      appId: "1:64999067428:web:08bf12b742754f2d1a6db1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
     let currentUser = '';
     let notificationsAllowed = false;
 
-    async function verifyPassword() {
-      if (!supabaseClient) {
-        alert('Database connection failed. Please verify that the Supabase CDN script is allowed by your network.');
-        return;
-      }
-      
-      const pwd = document.getElementById('password-input').value;
-      
-      // Makes an HTTPS REST request over Port 443
-      const { data, error } = await supabaseClient
-        .from('app_config')
-        .select('shared_password')
-        .eq('id', 1)
-        .single();
-      
-      if (error || !data) {
-        alert('Unable to reach app_config table. Verify your database setup in Supabase SQL editor.');
-        return;
-      }
-
-      if (data.shared_password === pwd) {
-        transitionScreen('step-password', 'step-username');
-      } else {
-        alert('Incorrect key.');
+    async function verifyRoomPassword(inputPassword) {
+      try {
+        const snapshot = await get(ref(db, 'app_config/shared_password'));
+        return snapshot.val() === inputPassword;
+      } catch (e) {
+        console.error("Database connection error:", e);
+        return false;
       }
     }
 
-    function goToNotifications() {
-      const name = document.getElementById('username-input').value.trim();
-      if (!name) return alert('Please enter a display name.');
-      currentUser = name;
-      transitionScreen('step-username', 'step-notifications');
+    function sendMessage(username, text) {
+      const msgRef = push(ref(db, 'messages'));
+      return set(msgRef, {
+        username,
+        content: text,
+        created_at: serverTimestamp()
+      });
     }
 
-    async function enableNotifications(wantNotifications) {
-      if (wantNotifications && 'Notification' in window) {
-        const permission = await Notification.requestPermission();
-        notificationsAllowed = (permission === 'granted');
-      }
-      enterChat();
-    }
-
-    function enterChat() {
-      transitionScreen('step-notifications', 'chat-screen');
-      loadMessages();
-      subscribeToMessages();
+    function listenForMessages(callback) {
+      const messagesQuery = query(
+        ref(db, 'messages'), 
+        orderByChild('created_at'), 
+        limitToLast(50)
+      );
+      return onChildAdded(messagesQuery, (snapshot) => {
+        callback(snapshot.val());
+      });
     }
 
     function transitionScreen(fromId, toId) {
       document.getElementById(fromId).classList.add('hidden');
       document.getElementById(toId).classList.remove('hidden');
-    }
-
-    async function loadMessages() {
-      // HTTPS REST query over Port 443
-      const { data, error } = await supabaseClient
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true });
-
-      if (!error && data) {
-        const container = document.getElementById('messages');
-        container.innerHTML = '';
-        data.forEach(msg => renderMessage(msg, false));
-        scrollToBottom();
-      }
     }
 
     function renderMessage(msg, isNew = true) {
@@ -411,33 +388,62 @@
       }
     }
 
-    async function sendMessage() {
-      const input = document.getElementById('message-input');
-      const text = input.value.trim();
-      if (!text) return;
-
-      input.value = '';
-      // HTTPS POST request over Port 443
-      await supabaseClient.from('messages').insert([{ username: currentUser, content: text }]);
-    }
-
-    function subscribeToMessages() {
-      // Realtime listener over WSS / Port 443
-      supabaseClient
-        .channel('public:messages')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-          renderMessage(payload.new, true);
-        })
-        .subscribe();
-    }
-
     function scrollToBottom() {
       const container = document.getElementById('messages');
       container.scrollTop = container.scrollHeight;
     }
 
     function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    document.getElementById('btn-password').addEventListener('click', async () => {
+      const pwd = document.getElementById('password-input').value.trim();
+      const isValid = await verifyRoomPassword(pwd);
+      if (isValid) {
+        transitionScreen('step-password', 'step-username');
+      } else {
+        alert('Incorrect room key.');
+      }
+    });
+
+    document.getElementById('btn-username').addEventListener('click', () => {
+      const name = document.getElementById('username-input').value.trim();
+      if (!name) return alert('Please enter a display name.');
+      currentUser = name;
+      transitionScreen('step-username', 'step-notifications');
+    });
+
+    document.getElementById('btn-notif-enable').addEventListener('click', async () => {
+      if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        notificationsAllowed = (permission === 'granted');
+      }
+      enterChat();
+    });
+
+    document.getElementById('btn-notif-skip').addEventListener('click', () => {
+      enterChat();
+    });
+
+    document.getElementById('btn-send').addEventListener('click', handleSend);
+    document.getElementById('message-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSend();
+    });
+
+    async function handleSend() {
+      const input = document.getElementById('message-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      await sendMessage(currentUser, text);
+    }
+
+    function enterChat() {
+      transitionScreen('step-notifications', 'chat-screen');
+      listenForMessages((msg) => {
+        renderMessage(msg, true);
+      });
     }
   </script>
 </body>
