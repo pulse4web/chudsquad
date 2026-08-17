@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Liquid Glass Chat</title>
+  <title>Dashboard</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-
+  <link rel="icon" type="image/x-icon" href="https://cmsv2-assets.apptegy.net/uploads/28320/favicon/31133/ASD_Favicon.png">
   <style>
     * {
       box-sizing: border-box;
@@ -280,8 +280,8 @@
     <!-- Step 1: Access Password -->
     <div id="step-password" class="screen">
       <div class="glass-panel" style="display:flex; flex-direction:column; gap:16px;">
-        <h2>Enter Room Key</h2>
-        <p>Enter the shared key to unlock this temporary messaging instance.</p>
+        <h2>enter key</h2>
+        <p>this website requires a key my man</p>
         <input type="password" id="password-input" placeholder="Shared key..." />
         <button id="btn-password">Unlock Access</button>
       </div>
@@ -290,9 +290,9 @@
     <!-- Step 2: Set Username -->
     <div id="step-username" class="screen hidden">
       <div class="glass-panel" style="display:flex; flex-direction:column; gap:16px;">
-        <h2>Display Name</h2>
-        <p>Choose a nickname that will be visible to everyone in the room.</p>
-        <input type="text" id="username-input" placeholder="Your name..." maxlength="20" />
+        <h2>display name</h2>
+        <p>choose a name that evb will see (choose wisely zawg 😭) </p>
+        <input type="text" id="username-input" placeholder="your name..." maxlength="20" />
         <button id="btn-username">Continue</button>
       </div>
     </div>
@@ -300,10 +300,10 @@
     <!-- Step 3: Notification Setup -->
     <div id="step-notifications" class="screen hidden">
       <div class="glass-panel" style="display:flex; flex-direction:column; gap:16px;">
-        <h2>Notifications</h2>
-        <p>Stay updated when new messages arrive while this page is in the background.</p>
-        <button id="btn-notif-enable">Enable Notifications</button>
-        <button id="btn-notif-skip" class="secondary-btn">Skip for Now</button>
+        <h2>notifications</h2>
+        <p>im not gonna explain figure it out </p>
+        <button id="btn-notif-enable">turn on notifications 😀</button>
+        <button id="btn-notif-skip" class="secondary-btn">mute chud squad 😔</button>
       </div>
     </div>
 
@@ -311,20 +311,20 @@
     <div id="chat-screen" class="screen hidden">
       <div class="chat-header">
         <div>
-          <span style="font-weight:700; font-size:15px; display:block;">Liquid Chat</span>
-          <span style="font-size:11px; color:#10B981;">Firebase Connected • Auto-Purge 30m</span>
+          <span style="font-weight:700; font-size:15px; display:block;">Chud Squad😈</span>
+          <span style="font-size:11px; color:#10B981;">connected • messages delete every 30 min</span>
         </div>
         <div class="chat-header-actions">
-          <button id="btn-purge" class="purge-btn">Purge</button>
-          <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981;"></div>
+          <button id="btn-purge" class="purge-btn" hidden>delete everything</button>
+          <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981; "></div>
         </div>
       </div>
 
       <div id="messages" class="chat-messages"></div>
 
       <div class="chat-input-area">
-        <input type="text" id="message-input" placeholder="Type a message..." />
-        <button id="btn-send" style="width: auto; padding: 0 20px;">Send</button>
+        <input type="text" id="message-input" placeholder="type smth..." />
+        <button id="btn-send" style="width: auto; padding: 0 20px;">send</button>
       </div>
     </div>
 
@@ -455,9 +455,9 @@
       scrollToBottom();
 
       if (isNew && !isSelf && notificationsAllowed && document.hidden) {
-        new Notification(`New message from ${msg.username}`, {
+        new Notification(`Chud Squad😈: ${msg.username}`, {
           body: msg.content,
-          icon: 'https://fav.farm/💬'
+          icon: 'https://emojifavicon.com/💬'
         });
       }
     }
@@ -491,7 +491,7 @@
       const now = Date.now();
       if (now < purgeCooldownEnd) return;
 
-      if (!confirm("Are you sure you want to delete all messages for everyone?")) return;
+      if (!confirm("are you sure you wanna delete all chud msgs???")) return;
 
       try {
         await remove(ref(db, 'messages'));
