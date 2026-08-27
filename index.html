@@ -9,7 +9,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="https://cmsv2-assets.apptegy.net/uploads/28320/favicon/31133/ASD_Favicon.png">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
   <style>
+    :root {
+      --bg-color: #000000;
+      --panel-bg: rgba(18, 18, 18, 0.85);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --text-color: #ffffff;
+      --subtext-color: #A1A1AA;
+      --border-color: rgba(255, 255, 255, 0.12);
+      --input-bg: rgba(255, 255, 255, 0.08);
+    }
+
     * {
       box-sizing: border-box;
       font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -21,12 +34,13 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      background-color: #000000;
-      color: #ffffff;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       display: flex;
       justify-content: center;
       align-items: center;
       overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .glow-bg {
@@ -52,10 +66,10 @@
       width: 100%;
       max-width: 9999px;
       height: 100vh;
-      background: rgba(18, 18, 18, 0.85);
+      background: var(--panel-bg);
       backdrop-filter: blur(25px) saturate(180%);
       -webkit-backdrop-filter: blur(25px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       position: relative;
@@ -64,10 +78,10 @@
     }
 
     .glass-panel {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--card-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--border-color);
       border-radius: 20px;
       padding: 24px;
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
@@ -85,7 +99,7 @@
       padding: 28px;
       gap: 20px;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       z-index: 2;
@@ -103,31 +117,30 @@
       font-size: 26px;
       font-weight: 700;
       letter-spacing: -0.02em;
-      color: #ffffff;
+      color: var(--text-color);
     }
 
     p {
       margin: 0;
-      color: #A1A1AA;
+      color: var(--subtext-color);
       font-size: 14px;
       line-height: 1.5;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="text"], input[type="password"], select {
       width: 100%;
       padding: 16px;
       border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.08);
-      color: #ffffff;
+      border: 1px solid var(--border-color);
+      background: var(--input-bg);
+      color: var(--text-color);
       font-size: 15px;
       outline: none;
       transition: all 0.25s ease;
     }
 
-    input:focus {
+    input:focus, select:focus {
       border-color: rgba(56, 189, 248, 0.6);
-      background: rgba(255, 255, 255, 0.12);
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
     }
 
@@ -137,7 +150,7 @@
       border-radius: 14px;
       border: 1px solid rgba(255, 255, 255, 0.25);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 100%);
-      color: #ffffff;
+      color: var(--text-color);
       font-weight: 600;
       font-size: 15px;
       cursor: pointer;
@@ -156,13 +169,44 @@
 
     .secondary-btn {
       background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #A1A1AA;
+      border: 1px solid var(--border-color);
+      color: var(--subtext-color);
     }
 
     .secondary-btn:hover {
       background: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      color: var(--text-color);
+    }
+
+    .purge-btn {
+      width: auto;
+      padding: 6px 14px;
+      font-size: 12px;
+      border-radius: 10px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .purge-btn:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: rgba(239, 68, 68, 0.6);
+      color: #ffffff;
+    }
+
+    .purge-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .settings-hdr-btn {
+      width: auto;
+      padding: 6px 14px;
+      font-size: 12px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     #chat-screen {
@@ -175,10 +219,10 @@
 
     .chat-header {
       padding: 18px 24px;
-      background: rgba(0, 0, 0, 0.7);
+      background: var(--panel-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -187,7 +231,7 @@
     .chat-header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .chat-messages {
@@ -200,13 +244,14 @@
     }
 
     .message {
+      position: relative;
       max-width: 80%;
       padding: 12px 16px;
       border-radius: 18px;
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--card-bg);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
       align-self: flex-start;
       animation: messagePop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -217,9 +262,37 @@
       border: 1px solid rgba(56, 189, 248, 0.4);
     }
 
+    .message-actions {
+      display: none;
+      position: absolute;
+      top: -12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 4px 8px;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .message.self:hover .message-actions {
+      display: flex;
+    }
+
+    .action-icon {
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--subtext-color);
+      transition: color 0.2s;
+    }
+
+    .action-icon:hover {
+      color: var(--text-color);
+    }
+
     .message .author {
       font-size: 11px;
-      color: #A1A1AA;
+      color: var(--subtext-color);
       margin-bottom: 4px;
       font-weight: 600;
     }
@@ -234,12 +307,29 @@
       word-break: break-word;
     }
 
+    .edit-box {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .edit-box input {
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+
+    .edit-box button {
+      width: auto;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
     .chat-input-area {
       padding: 16px;
-      background: rgba(0, 0, 0, 0.7);
+      background: var(--panel-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid var(--border-color);
       display: flex;
       gap: 10px;
     }
@@ -266,12 +356,37 @@
       </div>
     </div>
 
-    <!-- Step 2: Set Username -->
+    <!-- Step 2: Set Username & Theme Customization -->
     <div id="step-username" class="screen hidden">
       <div class="glass-panel" style="display:flex; flex-direction:column; gap:16px;">
-        <h2>display name</h2>
-        <p>choose a name that evb will see (choose wisely zawg 😭) </p>
+        <h2>display name & theme</h2>
+        <p>choose a name and customize your workspace</p>
         <input type="text" id="username-input" placeholder="your name..." maxlength="20" />
+        
+        <div style="display:flex; flex-direction:column; gap:6px; text-align:left;">
+          <label style="font-size:12px; color:var(--subtext-color);">Theme Choice</label>
+          <select id="theme-select">
+            <option value="dark">Dark Theme</option>
+            <option value="light">Light Theme</option>
+            <option value="custom">Custom Theme</option>
+          </select>
+        </div>
+
+        <div id="custom-theme-controls" style="display:none; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px;">Background Color</span>
+            <input type="color" id="theme-bg" value="#000000">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px;">Panel Color</span>
+            <input type="color" id="theme-panel" value="#121212">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px;">Text Color</span>
+            <input type="color" id="theme-text" value="#ffffff">
+          </div>
+        </div>
+
         <button id="btn-username">Continue</button>
       </div>
     </div>
@@ -286,6 +401,53 @@
       </div>
     </div>
 
+    <!-- Modal / Screen 5: Settings Modal -->
+    <div id="step-settings" class="screen hidden" style="z-index: 5;">
+      <div class="glass-panel" style="display:flex; flex-direction:column; gap:16px; max-width: 450px; margin: 0 auto; width: 100%;">
+        <h2>Settings</h2>
+        <p>Update your username, theme, and notification preferences.</p>
+        
+        <div style="display:flex; flex-direction:column; gap:6px; text-align:left;">
+          <label style="font-size:12px; color:var(--subtext-color);">Display Name</label>
+          <input type="text" id="settings-username-input" placeholder="your name..." maxlength="20" />
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px; text-align:left;">
+          <label style="font-size:12px; color:var(--subtext-color);">Theme Choice</label>
+          <select id="settings-theme-select">
+            <option value="dark">Dark Theme</option>
+            <option value="light">Light Theme</option>
+            <option value="custom">Custom Theme</option>
+          </select>
+        </div>
+
+        <div id="settings-custom-theme-controls" style="display:none; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px;">Background Color</span>
+            <input type="color" id="settings-theme-bg" value="#000000">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px;">Panel Color</span>
+            <input type="color" id="settings-theme-panel" value="#121212">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px;">Text Color</span>
+            <input type="color" id="settings-theme-text" value="#ffffff">
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px; text-align:left;">
+          <label style="font-size:12px; color:var(--subtext-color);">Notifications</label>
+          <button id="btn-settings-toggle-notif" class="secondary-btn" style="text-align:center;">Toggle Notifications</button>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button id="btn-settings-save">Save & Close</button>
+          <button id="btn-settings-cancel" class="secondary-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Step 4: Live Chat Screen -->
     <div id="chat-screen" class="screen hidden">
       <div class="chat-header">
@@ -294,7 +456,9 @@
           <span style="font-size:11px; color:#10B981;">connected • messages delete every 30 min</span>
         </div>
         <div class="chat-header-actions">
-          <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981; "></div>
+          <button id="btn-open-settings" class="secondary-btn settings-hdr-btn"><i class="fa-solid fa-gear"></i> settings</button>
+          <button id="btn-purge" class="purge-btn">delete everything</button>
+          <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981;"></div>
         </div>
       </div>
 
@@ -316,14 +480,15 @@
       ref, 
       push, 
       set, 
+      update,
       remove,
       onChildAdded, 
+      onChildChanged,
       onChildRemoved,
       query, 
       limitToLast, 
       orderByChild, 
-      get, 
-      serverTimestamp 
+      get 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -340,15 +505,97 @@
     const db = getDatabase(app);
 
     const THIRTY_MINUTES_MS = 30 * 60 * 1000;
-    let currentUser = '';
-    let notificationsAllowed = false;
+    const FIVE_MINUTES_MS = 5 * 60 * 1000;
+    let currentUser = localStorage.getItem('cs_username') || '';
+    let notificationsAllowed = localStorage.getItem('cs_notifs') === 'true';
     const seenMessageKeys = new Set();
+    let purgeCooldownTimer = null;
+    let purgeCooldownEnd = 0;
+
+    // Apply saved Theme settings
+    function applyTheme(theme, customColors = null) {
+      const root = document.documentElement;
+      if (theme === 'light') {
+        root.style.setProperty('--bg-color', '#f4f4f5');
+        root.style.setProperty('--panel-bg', 'rgba(255, 255, 255, 0.9)');
+        root.style.setProperty('--card-bg', 'rgba(0, 0, 0, 0.04)');
+        root.style.setProperty('--text-color', '#18181b');
+        root.style.setProperty('--subtext-color', '#71717a');
+        root.style.setProperty('--border-color', 'rgba(0, 0, 0, 0.12)');
+        root.style.setProperty('--input-bg', 'rgba(0, 0, 0, 0.05)');
+      } else if (theme === 'custom' && customColors) {
+        root.style.setProperty('--bg-color', customColors.bg);
+        root.style.setProperty('--panel-bg', customColors.panel);
+        root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.08)');
+        root.style.setProperty('--text-color', customColors.text);
+        root.style.setProperty('--subtext-color', customColors.text + 'aa');
+        root.style.setProperty('--border-color', customColors.text + '33');
+        root.style.setProperty('--input-bg', customColors.text + '11');
+      } else {
+        root.style.setProperty('--bg-color', '#000000');
+        root.style.setProperty('--panel-bg', 'rgba(18, 18, 18, 0.85)');
+        root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.05)');
+        root.style.setProperty('--text-color', '#ffffff');
+        root.style.setProperty('--subtext-color', '#A1A1AA');
+        root.style.setProperty('--border-color', 'rgba(255, 255, 255, 0.12)');
+        root.style.setProperty('--input-bg', 'rgba(255, 255, 255, 0.08)');
+      }
+    }
+
+    // Load LocalData on startup
+    const savedTheme = localStorage.getItem('cs_theme') || 'dark';
+    const savedCustomColors = JSON.parse(localStorage.getItem('cs_custom_colors') || 'null');
+    applyTheme(savedTheme, savedCustomColors);
+
+    if (currentUser) {
+      document.getElementById('username-input').value = currentUser;
+    }
+
+    // Theme Selector UI binding (Onboarding)
+    const themeSelect = document.getElementById('theme-select');
+    const customControls = document.getElementById('custom-theme-controls');
+    themeSelect.value = savedTheme;
+    if (savedTheme === 'custom') customControls.style.display = 'flex';
+
+    themeSelect.addEventListener('change', (e) => {
+      if (e.target.value === 'custom') {
+        customControls.style.display = 'flex';
+      } else {
+        customControls.style.display = 'none';
+        applyTheme(e.target.value);
+      }
+    });
+
+    // Settings Modal Theme Control UI binding
+    const settingsThemeSelect = document.getElementById('settings-theme-select');
+    const settingsCustomControls = document.getElementById('settings-custom-theme-controls');
+    settingsThemeSelect.addEventListener('change', (e) => {
+      if (e.target.value === 'custom') {
+        settingsCustomControls.style.display = 'flex';
+      } else {
+        settingsCustomControls.style.display = 'none';
+      }
+    });
+
+    // Check message content for profanity using API
+    async function checkProfanity(messageText) {
+      try {
+        const res = await fetch('https://vector.profanity.dev', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: messageText }),
+        });
+        const data = await res.json();
+        return data.isProfanity;
+      } catch (e) {
+        return false;
+      }
+    }
 
     async function verifyRoomPassword(inputPassword) {
       try {
         let snapshot = await get(ref(db, 'app_config/shared_password'));
         if (!snapshot.exists()) return false;
-
         return String(snapshot.val()).trim() === String(inputPassword).trim();
       } catch (e) {
         console.error("Database connection error:", e);
@@ -356,7 +603,7 @@
       }
     }
 
-    function listenForMessages(onAdd, onRemove) {
+    function listenForMessages(onAdd, onChange, onRemove) {
       const messagesQuery = query(
         ref(db, 'messages'), 
         orderByChild('created_at'), 
@@ -377,6 +624,10 @@
 
         seenMessageKeys.add(key);
         onAdd(key, data);
+      });
+
+      onChildChanged(ref(db, 'messages'), (snapshot) => {
+        onChange(snapshot.key, snapshot.val());
       });
 
       onChildRemoved(ref(db, 'messages'), (snapshot) => {
@@ -403,18 +654,89 @@
       div.setAttribute('data-key', key);
       div.setAttribute('data-time', createdAt);
 
+      let actionIconsHtml = '';
+      if (isSelf) {
+        actionIconsHtml = `
+          <div class="message-actions">
+            <i class="fa-solid fa-rotate-left action-icon btn-msg-delete" title="Delete message"></i>
+            <i class="fa-solid fa-pencil action-icon btn-msg-edit" title="Edit message"></i>
+          </div>
+        `;
+      }
+
       div.innerHTML = `
+        ${actionIconsHtml}
         <div class="author">${escapeHtml(msg.username)}</div>
         <div class="text">${escapeHtml(msg.content)}</div>
       `;
       container.appendChild(div);
       scrollToBottom();
 
-      if (isNew && !isSelf && notificationsAllowed && document.hidden) {
-        new Notification(`Chud Squad😈: ${msg.username}`, {
-          body: msg.content,
-          icon: 'https://emojifavicon.com/💬'
+      // Setup actions for user's own messages
+      if (isSelf) {
+        const deleteBtn = div.querySelector('.btn-msg-delete');
+        const editBtn = div.querySelector('.btn-msg-edit');
+
+        deleteBtn.addEventListener('click', () => {
+          remove(ref(db, `messages/${key}`));
         });
+
+        editBtn.addEventListener('click', () => {
+          const textEl = div.querySelector('.text');
+          if (div.querySelector('.edit-box')) return;
+
+          const currentContent = msg.content;
+          textEl.style.display = 'none';
+
+          const editBox = document.createElement('div');
+          editBox.className = 'edit-box';
+          editBox.innerHTML = `
+            <input type="text" value="${escapeHtml(currentContent)}" />
+            <button class="btn-done">Done</button>
+          `;
+          div.appendChild(editBox);
+
+          const saveEdit = async () => {
+            const inputVal = editBox.querySelector('input').value.trim();
+            if (inputVal) {
+              const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              const updatedContent = `${inputVal} (Edited at ${nowTime})`;
+              await update(ref(db, `messages/${key}`), { content: updatedContent });
+            }
+            editBox.remove();
+            textEl.style.display = 'block';
+          };
+
+          editBox.querySelector('.btn-done').addEventListener('click', saveEdit);
+          editBox.querySelector('input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveEdit();
+          });
+        });
+      }
+
+      // Notifications with Profanity API check
+      if (isNew && !isSelf && notificationsAllowed && document.hidden) {
+        checkProfanity(msg.content).then((hasProfanity) => {
+          if (hasProfanity) {
+            new Notification('New message', {
+              body: 'New message',
+              icon: 'https://emojifavicon.com/💬'
+            });
+          } else {
+            new Notification(`Chud Squad😈: ${msg.username}`, {
+              body: msg.content,
+              icon: 'https://emojifavicon.com/💬'
+            });
+          }
+        });
+      }
+    }
+
+    function updateDOMMessage(key, msg) {
+      const el = document.querySelector(`.message[data-key="${key}"]`);
+      if (el) {
+        const textEl = el.querySelector('.text');
+        if (textEl) textEl.innerText = msg.content;
       }
     }
 
@@ -441,6 +763,120 @@
       });
     }
 
+    // Manual Purge Logic
+    const purgeBtn = document.getElementById('btn-purge');
+    purgeBtn.addEventListener('click', async () => {
+      const now = Date.now();
+      if (now < purgeCooldownEnd) return;
+
+      if (!confirm("are you sure you wanna delete all chud msgs???")) return;
+
+      try {
+        await remove(ref(db, 'messages'));
+        document.getElementById('messages').innerHTML = '';
+        seenMessageKeys.clear();
+
+        purgeCooldownEnd = Date.now() + FIVE_MINUTES_MS;
+        startPurgeCooldown();
+      } catch (e) {
+        console.error("Purge failed:", e);
+        alert("Failed to purge messages.");
+      }
+    });
+
+    function startPurgeCooldown() {
+      purgeBtn.disabled = true;
+
+      if (purgeCooldownTimer) clearInterval(purgeCooldownTimer);
+
+      purgeCooldownTimer = setInterval(() => {
+        const remainingMs = purgeCooldownEnd - Date.now();
+        const remainingSec = Math.ceil(remainingMs / 1000);
+
+        if (remainingSec <= 0) {
+          clearInterval(purgeCooldownTimer);
+          purgeBtn.disabled = false;
+          purgeBtn.innerText = "delete everything";
+        } else {
+          const mins = Math.floor(remainingSec / 60);
+          const secs = remainingSec % 60;
+          purgeBtn.innerText = `delete everything (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+        }
+      }, 1000);
+    }
+
+    // Settings Panel Controls
+    let tempNotifState = notificationsAllowed;
+    const updateNotifBtnUI = () => {
+      const notifToggleBtn = document.getElementById('btn-settings-toggle-notif');
+      notifToggleBtn.innerText = tempNotifState ? "Notifications: Enabled 😀" : "Notifications: Disabled 😔";
+    };
+
+    document.getElementById('btn-open-settings').addEventListener('click', () => {
+      document.getElementById('settings-username-input').value = currentUser;
+      
+      const currentTheme = localStorage.getItem('cs_theme') || 'dark';
+      settingsThemeSelect.value = currentTheme;
+
+      if (currentTheme === 'custom') {
+        settingsCustomControls.style.display = 'flex';
+        const colors = JSON.parse(localStorage.getItem('cs_custom_colors') || '{}');
+        if (colors.bg) document.getElementById('settings-theme-bg').value = colors.bg;
+        if (colors.panel) document.getElementById('settings-theme-panel').value = colors.panel;
+        if (colors.text) document.getElementById('settings-theme-text').value = colors.text;
+      } else {
+        settingsCustomControls.style.display = 'none';
+      }
+
+      tempNotifState = notificationsAllowed;
+      updateNotifBtnUI();
+
+      document.getElementById('step-settings').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-settings-toggle-notif').addEventListener('click', async () => {
+      if (!tempNotifState && 'Notification' in window) {
+        const perm = await Notification.requestPermission();
+        tempNotifState = (perm === 'granted');
+      } else {
+        tempNotifState = !tempNotifState;
+      }
+      updateNotifBtnUI();
+    });
+
+    document.getElementById('btn-settings-cancel').addEventListener('click', () => {
+      document.getElementById('step-settings').classList.add('hidden');
+    });
+
+    document.getElementById('btn-settings-save').addEventListener('click', () => {
+      const newUsername = document.getElementById('settings-username-input').value.trim();
+      if (!newUsername) return alert('Display name cannot be empty.');
+
+      currentUser = newUsername;
+      localStorage.setItem('cs_username', currentUser);
+
+      notificationsAllowed = tempNotifState;
+      localStorage.setItem('cs_notifs', notificationsAllowed);
+
+      const newTheme = settingsThemeSelect.value;
+      localStorage.setItem('cs_theme', newTheme);
+
+      if (newTheme === 'custom') {
+        const customColors = {
+          bg: document.getElementById('settings-theme-bg').value,
+          panel: document.getElementById('settings-theme-panel').value,
+          text: document.getElementById('settings-theme-text').value
+        };
+        localStorage.setItem('cs_custom_colors', JSON.stringify(customColors));
+        applyTheme('custom', customColors);
+      } else {
+        applyTheme(newTheme);
+      }
+
+      document.getElementById('step-settings').classList.add('hidden');
+    });
+
+    // Screen Transitions & Onboarding Saving
     document.getElementById('btn-password').addEventListener('click', async () => {
       const pwd = document.getElementById('password-input').value.trim();
       const isValid = await verifyRoomPassword(pwd);
@@ -454,7 +890,25 @@
     document.getElementById('btn-username').addEventListener('click', () => {
       const name = document.getElementById('username-input').value.trim();
       if (!name) return alert('Please enter a display name.');
+      
       currentUser = name;
+      localStorage.setItem('cs_username', currentUser);
+
+      const selectedTheme = themeSelect.value;
+      localStorage.setItem('cs_theme', selectedTheme);
+
+      if (selectedTheme === 'custom') {
+        const customColors = {
+          bg: document.getElementById('theme-bg').value,
+          panel: document.getElementById('theme-panel').value,
+          text: document.getElementById('theme-text').value
+        };
+        localStorage.setItem('cs_custom_colors', JSON.stringify(customColors));
+        applyTheme('custom', customColors);
+      } else {
+        applyTheme(selectedTheme);
+      }
+
       transitionScreen('step-username', 'step-notifications');
     });
 
@@ -462,11 +916,13 @@
       if ('Notification' in window) {
         const permission = await Notification.requestPermission();
         notificationsAllowed = (permission === 'granted');
+        localStorage.setItem('cs_notifs', notificationsAllowed);
       }
       enterChat();
     });
 
     document.getElementById('btn-notif-skip').addEventListener('click', () => {
+      localStorage.setItem('cs_notifs', false);
       enterChat();
     });
 
@@ -487,6 +943,7 @@
       transitionScreen('step-notifications', 'chat-screen');
       listenForMessages(
         (key, msg) => renderMessage(key, msg, true),
+        (key, msg) => updateDOMMessage(key, msg),
         (key) => removeMessageFromDOM(key)
       );
     }
